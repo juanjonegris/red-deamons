@@ -1,0 +1,83 @@
+---
+interface Props {
+    hasMatch?: boolean;
+    opponentName?: string;
+    opponentLogo?: string; // Optional path to logo
+    date?: string;
+    time?: string;
+    location?: string;
+}
+
+const {
+    hasMatch = true,
+    opponentName = "Dark Knights",
+    date = "October 19, 2024",
+    time = "20:00",
+    location = "Demon's Lair Arena",
+} = Astro.props;
+---
+
+<section class="h-full relative w-full bg-black border-t-4 border-red-900 overflow-hidden flex flex-col pointer-events-none md:pointer-events-auto">
+    <!-- Background Texture -->
+    <div class="absolute inset-0 bg-[radial-gradient(#450a0a_1px,transparent_1px)] [background-size:20px_20px] opacity-20 z-0"></div>
+    
+    <div class="relative z-10 container mx-auto px-4 py-8 md:py-12 flex flex-col justify-center h-full">
+        
+        <div class="mb-6">
+            <span class="text-red-500 font-bold tracking-[0.2em] uppercase text-sm">Next Challenge</span>
+            <h2 class="text-3xl md:text-4xl font-heading font-bold text-white uppercase italic">Upcoming Match</h2>
+        </div>
+
+        {hasMatch ? (
+            <div class="flex flex-col gap-8">
+                <div class="flex items-center gap-6">
+                    <!-- VS Badge -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-neutral-900 rounded-full flex items-center justify-center border-2 border-red-900 shadow-[0_0_20px_rgba(220,38,38,0.2)]">
+                            <span class="font-heading font-bold text-xl md:text-2xl text-red-600">VS</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Opponent Info -->
+                    <div class="flex flex-col">
+                        <span class="text-gray-400 text-sm uppercase tracking-widest">Opponent</span>
+                        <span class="text-2xl md:text-4xl font-black text-white uppercase transform -skew-x-6">{opponentName}</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-white/10 pt-6">
+                    <div class="flex items-start gap-3">
+                        <div class="text-red-500 mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-gray-400 text-xs uppercase tracking-wider">Date & Time</span>
+                            <span class="text-white font-bold text-lg">{date}</span>
+                            <span class="text-red-500 font-bold text-xl">{time}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3">
+                        <div class="text-red-500 mt-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-gray-400 text-xs uppercase tracking-wider">Location</span>
+                            <span class="text-white font-bold">{location}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-2">
+                     <a href="#" class="inline-block text-white text-sm font-bold uppercase tracking-widest border-b-2 border-red-600 pb-1 hover:text-red-500 transition-colors">Get Tickets &rarr;</a>
+                </div>
+            </div>
+        ) : (
+             <div class="flex flex-col items-center justify-center p-8 bg-white/5 rounded-lg border border-dashed border-white/10 min-h-[200px]">
+                <span class="text-4xl mb-4">🏀</span>
+                <span class="text-xl text-white font-heading uppercase italic tracking-wider">No Incoming Games</span>
+                <p class="text-gray-400 text-sm mt-2 max-w-xs text-center">The schedule is currently clear. Check back later for updates on the next season.</p>
+            </div>
+        )}
+    </div>
+</section>

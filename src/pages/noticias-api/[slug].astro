@@ -1,0 +1,150 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import { fetchBasketballNews } from "../../services/newsService";
+import type { Article } from "../../types/NewsApi";
+
+export async function getStaticPaths() {
+    const noticias = await fetchBasketballNews();
+
+    // We filter out articles without slug just in case, though our service guarantees them
+    return noticias
+        .filter((entry) => entry.slug)
+        .map((entry) => ({
+            params: { slug: entry.slug },
+            props: { entry },
+        }));
+}
+
+interface Props {
+    entry: Article;
+}
+
+const { entry } = Astro.props;
+---
+
+<Layout title={`Red Demons | ${entry.title}`}>
+    <div class="flex flex-col min-h-screen bg-neutral-950 text-white">
+        <Header />
+        <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+            {/* Article Header */}
+            <div class="mb-8 text-center">
+                <h1
+                    class="text-4xl md:text-5xl font-bold mb-4 text-red-600 font-heading uppercase tracking-wide"
+                >
+                    {entry.title}
+                </h1>
+
+                {
+                    entry.description && (
+                        <p class="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                            {entry.description}
+                        </p>
+                    )
+                }
+
+                <div class="mt-6 text-sm text-gray-500 font-medium space-x-4">
+                    <time
+                        datetime={entry.publishedAt}
+                        class="border border-neutral-700 px-3 py-1 rounded-full"
+                    >
+                        {
+                            new Date(entry.publishedAt).toLocaleDateString(
+                                "es-ES",
+                                {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                },
+                            )
+                        }
+                    </time>
+                    {
+                        entry.author && (
+                            <span class="text-red-500 font-semibold uppercase tracking-wider text-xs">
+                                Por {entry.author}
+                            </span>
+                        )
+                    }
+                </div>
+            </div>
+
+            {/* Hero Image */}
+            <div
+                class="mb-12 rounded-xl overflow-hidden shadow-2xl border border-neutral-800 aspect-video relative group"
+            >
+                <img
+                    src={entry.urlToImage ||
+                        "https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1000&auto=format&fit=crop"}
+                    alt={entry.title}
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    onerror="this.src='https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1000&auto=format&fit=crop'"
+                />
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"
+                >
+                </div>
+            </div>
+
+            {/* Content */}
+            <div
+                class="bg-neutral-900/50 p-8 md:p-10 rounded-2xl border border-neutral-800 shadow-xl backdrop-blur-sm"
+            >
+                <article
+                    class="prose prose-invert prose-lg prose-red mx-auto max-w-none prose-headings:font-heading prose-headings:uppercase prose-a:text-red-500 hover:prose-a:text-red-400 prose-img:rounded-lg"
+                >
+                    {
+                        /* NewsAPI content is often truncated or contains HTML-like text but plain. We render it carefully. */
+                    }
+                    <p>
+                        {
+                            entry.content
+                                ? entry.content.replace(/\[\+\d+\schars\]$/, "")
+                                : entry.description
+                        }
+                    </p>
+                </article>
+
+                <div
+                    class="mt-8 pt-8 border-t border-neutral-800 flex justify-center"
+                >
+                    <a
+                        href={entry.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold uppercase tracking-wider rounded transition-colors duration-300 shadow-lg hover:shadow-red-900/20"
+                    >
+                        Leer noticia completa en {
+                            entry.source.name || "la fuente original"
+                        }
+                    </a>
+                </div>
+            </div>
+
+            {/* Back Link */}
+            <div class="mt-12 pt-8 border-t border-neutral-800 text-center">
+                <a
+                    href="/noticias2"
+                    class="inline-flex items-center text-red-500 hover:text-white font-bold tracking-wide uppercase transition-colors duration-300 group"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Volver a Noticias API
+                </a>
+            </div>
+        </main>
+        <Footer />
+    </div>
+</Layout>

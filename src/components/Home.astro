@@ -1,0 +1,57 @@
+---
+import LastMatch from "./home/last-match.astro";
+import NextMatch from "./home/next-match.astro";
+---
+
+<!-- Hero Section -->
+<section
+    class="relative w-full h-[85vh] flex flex-col justify-center items-center overflow-hidden"
+>
+    <!-- Background Overlay/Image Placeholder -->
+    <div
+        class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black z-10"
+    >
+    </div>
+
+    <!-- Placeholder Image using Placehold.co for visual context -->
+    <img
+        src="/src/assets/home_main.png"
+        alt="Red Demons Team"
+        class="absolute inset-0 w-full h-full object-cover object-center z-0"
+    />
+
+    <!-- Title & Content -->
+    <div class="relative z-20 text-center px-4 max-w-4xl mx-auto">
+        <!-- Decorative Element -->
+        <div class="w-24 h-2 bg-red-600 mx-auto mb-8 animate-pulse"></div>
+
+        <h1
+            class="text-7xl md:text-9xl font-black text-white uppercase tracking-tighter mb-6 relative inline-block font-heading italic transform -skew-x-6"
+        >
+            Red <span
+                class="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-900"
+                >Demons</span
+            >
+        </h1>
+
+        <p
+            class="text-xl md:text-3xl text-gray-200 font-bold tracking-[0.2em] uppercase max-w-2xl mx-auto drop-shadow-md"
+        >
+            Dominating the Court
+        </p>
+
+        <!-- CTA Button -->
+        <div class="mt-12">
+            <a
+                href="#"
+                class="inline-block bg-red-700 hover:bg-red-600 text-white font-bold py-4 px-10 rounded-none uppercase tracking-widest text-lg transition-transform hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(220,38,38,0.6)] border border-red-900 transform skew-x-[-10deg]"
+            >
+                <span class="inline-block skew-x-[10deg]">Join the Team</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Match Center -->
+<LastMatch />
+<NextMatch hasMatch={false} />

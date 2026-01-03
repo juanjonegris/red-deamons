@@ -1,0 +1,129 @@
+---
+// src/components/home/last-match.astro
+---
+
+<section
+    class="relative w-full bg-neutral-900 border-t-4 border-red-700 overflow-hidden"
+>
+    <!-- Background Texture/Gradient -->
+    <div
+        class="absolute inset-0 bg-gradient-to-r from-black via-neutral-900 to-black opacity-90 z-0"
+    >
+    </div>
+    <div
+        class="absolute inset-0 bg-[radial-gradient(#333_1px,transparent_1px)] [background-size:16px_16px] opacity-10 z-0"
+    >
+    </div>
+
+    <div class="relative z-10 container mx-auto px-4 py-8 md:py-12">
+        <div
+            class="flex flex-col md:flex-row items-center justify-between gap-8"
+        >
+            <!-- Label Section -->
+            <div
+                class="flex flex-col items-center md:items-start text-center md:text-left"
+            >
+                <span
+                    class="text-red-500 font-bold tracking-[0.2em] uppercase text-sm mb-1"
+                    >Latest Results</span
+                >
+                <h2
+                    class="text-3xl md:text-4xl font-heading font-bold text-white uppercase italic"
+                >
+                    Game Recap
+                </h2>
+            </div>
+
+            <!-- Match Score Section -->
+            <div
+                class="flex items-center justify-center gap-6 md:gap-12 bg-black/40 p-6 rounded-lg border border-red-900/30 backdrop-blur-sm transform skew-x-[-10deg]"
+            >
+                <!-- Home Team -->
+                <div class="flex flex-col items-center skew-x-[10deg]">
+                    <div
+                        class="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-red-600 to-red-900 rounded-full flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(220,38,38,0.5)]"
+                    >
+                        <span class="font-heading font-bold text-xl md:text-2xl"
+                            >RD</span
+                        >
+                    </div>
+                    <span class="text-lg font-bold uppercase tracking-wider"
+                        >Red Demons</span
+                    >
+                </div>
+
+                <!-- Score Board -->
+                <div class="flex flex-col items-center skew-x-[10deg]">
+                    <div
+                        class="text-4xl md:text-6xl font-black text-white flex items-center gap-2 md:gap-4 font-heading"
+                    >
+                        <span class="text-red-500">98</span>
+                        <span class="text-gray-600 text-2xl md:text-4xl">-</span
+                        >
+                        <span>86</span>
+                    </div>
+                    <span
+                        class="text-gray-400 text-xs uppercase tracking-widest mt-1"
+                        >Final Score</span
+                    >
+                </div>
+
+                <!-- Away Team -->
+                <div class="flex flex-col items-center skew-x-[10deg]">
+                    <div
+                        class="w-16 h-16 md:w-20 md:h-20 bg-gray-800 rounded-full flex items-center justify-center mb-2 border border-gray-700"
+                    >
+                        <span
+                            class="font-heading font-bold text-xl md:text-2xl text-gray-400"
+                            >BH</span
+                        >
+                    </div>
+                    <span
+                        class="text-lg font-bold text-gray-400 uppercase tracking-wider"
+                        >Blue Hawks</span
+                    >
+                </div>
+            </div>
+
+            <!-- Details & Action -->
+            <div
+                class="flex flex-col items-center md:items-end gap-3 text-center md:text-right"
+            >
+                <div class="flex flex-col">
+                    <span class="text-white font-bold text-lg"
+                        >October 12, 2024</span
+                    >
+                    <span class="text-gray-400 text-sm">Downtown Arena</span>
+                </div>
+
+                <a
+                    href="#"
+                    class="group relative inline-flex items-center gap-2 px-6 py-2 bg-transparent overflow-hidden text-red-500 transition-colors hover:text-white mt-1"
+                >
+                    <span
+                        class="absolute inset-0 w-full h-full bg-red-600/10 group-hover:bg-red-600 transition-all duration-300 transform -skew-x-12"
+                    ></span>
+                    <span
+                        class="relative font-bold uppercase tracking-wider text-sm flex items-center gap-2"
+                    >
+                        View Stats
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            class="transition-transform group-hover:translate-x-1"
+                            ><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"
+                            ></path></svg
+                        >
+                    </span>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>

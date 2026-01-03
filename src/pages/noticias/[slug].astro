@@ -1,0 +1,102 @@
+---
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+
+export async function getStaticPaths() {
+    const noticias = await getCollection("noticias");
+    return noticias.map((entry) => ({
+        params: { slug: entry.slug },
+        props: { entry },
+    }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<Layout title={`Red Demons | ${entry.data.title}`}>
+    <div class="flex flex-col min-h-screen bg-neutral-950 text-white">
+        <Header />
+        <main class="flex-grow container mx-auto px-4 py-12 max-w-4xl">
+            {/* Article Header */}
+            <div class="mb-8 text-center">
+                <h1
+                    class="text-4xl md:text-5xl font-bold mb-4 text-red-600 font-heading uppercase tracking-wide"
+                >
+                    {entry.data.title}
+                </h1>
+                <p
+                    class="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed"
+                >
+                    {entry.data.intro}
+                </p>
+                <div class="mt-6 text-sm text-gray-500 font-medium">
+                    <time
+                        datetime={entry.data.publishDate.toISOString()}
+                        class="border border-neutral-700 px-3 py-1 rounded-full"
+                    >
+                        {
+                            entry.data.publishDate.toLocaleDateString("es-ES", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                            })
+                        }
+                    </time>
+                </div>
+            </div>
+
+            {/* Hero Image */}
+            <div
+                class="mb-12 rounded-xl overflow-hidden shadow-2xl border border-neutral-800 aspect-video relative group"
+            >
+                <img
+                    src={entry.data.image.src}
+                    alt={entry.data.image.alt}
+                    class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"
+                >
+                </div>
+            </div>
+
+            {/* Content */}
+            <div
+                class="bg-neutral-900/50 p-8 md:p-10 rounded-2xl border border-neutral-800 shadow-xl backdrop-blur-sm"
+            >
+                <article
+                    class="prose prose-invert prose-lg prose-red mx-auto max-w-none prose-headings:font-heading prose-headings:uppercase prose-a:text-red-500 hover:prose-a:text-red-400 prose-img:rounded-lg"
+                >
+                    <Content />
+                </article>
+            </div>
+
+            {/* Back Link */}
+            <div class="mt-12 pt-8 border-t border-neutral-800 text-center">
+                <a
+                    href="/noticias"
+                    class="inline-flex items-center text-red-500 hover:text-white font-bold tracking-wide uppercase transition-colors duration-300 group"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Volver a Noticias
+                </a>
+            </div>
+        </main>
+        <Footer />
+    </div>
+</Layout>

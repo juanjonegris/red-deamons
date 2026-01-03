@@ -1,0 +1,25 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+    title?: string;
+}
+
+const { title = "Red Demons | Planteles" } = Astro.props;
+---
+
+<Layout title={title}>
+    <div class="flex flex-col min-h-screen bg-black">
+        <Header />
+
+        <main class="flex-grow flex items-center justify-center">
+            <h1 class="text-6xl text-white font-bold uppercase tracking-wider">
+                PLANTELES
+            </h1>
+        </main>
+
+        <Footer />
+    </div>
+</Layout>

@@ -1,0 +1,123 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { fetchBasketballNews } from "../services/newsService";
+import type { Article } from "../types/NewsApi";
+
+interface Props {
+    title?: string;
+}
+
+const { title = "Red Demons | Noticias API" } = Astro.props;
+
+// Fetch news from API
+const allNoticias: Article[] = await fetchBasketballNews();
+---
+
+<Layout title={title}>
+    <div class="flex flex-col min-h-screen bg-neutral-950">
+        <Header />
+
+        <main class="flex-grow container mx-auto px-4 py-12">
+            <h1
+                class="text-5xl md:text-6xl text-white font-bold uppercase tracking-wider mb-12 text-center"
+            >
+                <span class="text-red-600">Últimas</span> Noticias (API)
+            </h1>
+
+            {
+                allNoticias.length === 0 ? (
+                    <div class="text-white text-center text-xl">
+                        <p>
+                            No se pudieron cargar las noticias en este momento.
+                        </p>
+                    </div>
+                ) : (
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {allNoticias.map((noticia) => (
+                            <article class="bg-neutral-900 border border-neutral-800 rounded-lg overflow-hidden hover:border-red-600 transition-colors duration-300 group shadow-lg flex flex-col">
+                                <a
+                                    href={`/noticias-api/${noticia.slug}`}
+                                    class="block h-full flex flex-col"
+                                >
+                                    <div class="relative overflow-hidden aspect-video shrink-0">
+                                        <img
+                                            src={
+                                                noticia.urlToImage ||
+                                                "https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1000&auto=format&fit=crop"
+                                            }
+                                            alt={noticia.title}
+                                            class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                                            onerror="this.src='https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1000&auto=format&fit=crop'"
+                                        />
+                                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-60" />
+                                    </div>
+
+                                    <div class="p-6 flex flex-col flex-grow">
+                                        <div class="flex items-center text-red-500 text-sm font-semibold mb-3">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 mr-1"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                />
+                                            </svg>
+                                            <time
+                                                datetime={noticia.publishedAt}
+                                            >
+                                                {new Date(
+                                                    noticia.publishedAt,
+                                                ).toLocaleDateString("es-ES", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                })}
+                                            </time>
+                                        </div>
+
+                                        <h2 class="text-2xl font-bold text-white mb-3 leading-tight group-hover:text-red-500 transition-colors">
+                                            {noticia.title}
+                                        </h2>
+
+                                        <p class="text-gray-400 line-clamp-3 leading-relaxed mb-4 flex-grow">
+                                            {noticia.description ||
+                                                "Haz clic para leer más sobre esta noticia..."}
+                                        </p>
+
+                                        <div class="mt-auto inline-flex items-center text-white font-medium group-hover:translate-x-1 transition-transform">
+                                            Leer más
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-4 w-4 ml-2 text-red-600"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M14 5l7 7m0 0l-7 7m7-7H3"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </a>
+                            </article>
+                        ))}
+                    </div>
+                )
+            }
+        </main>
+
+        <Footer />
+    </div>
+</Layout>
