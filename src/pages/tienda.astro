@@ -8,16 +8,106 @@ interface Props {
 }
 
 const { title = "Red Demons | Tienda" } = Astro.props;
+
+import { supabase } from "../lib/supabase";
+import type { Category, Product } from "../lib/types";
+
+// Fetch categories with active products and their primary images
+const { data: categoriesData } = await supabase
+    .from("categories")
+    .select(
+        `
+    *,
+    products:products (
+      *,
+      product_images:product_images (*)
+    )
+  `,
+    )
+    .eq("products.is_active", true)
+    .eq("products.product_images.is_primary", true);
+
+// Transformations to match types and handle potentially null relations
+const categories = (categoriesData || []).map((cat) => ({
+    ...cat,
+    products: (cat.products || []).filter((p: any) => p.is_active), // Client-side filter to be safe or if strict generic types need handling
+})) as unknown as (Category & { products: Product[] })[];
 ---
 
 <Layout title={title}>
     <div class="flex flex-col min-h-screen bg-black">
         <Header />
 
-        <main class="flex-grow flex items-center justify-center">
-            <h1 class="text-6xl text-white font-bold uppercase tracking-wider">
+        <main class="flex-grow flex flex-col items-center justify-center p-4">
+            <h1
+                class="text-6xl text-white font-bold uppercase tracking-wider mb-12 mt-8"
+            >
                 TIENDA
             </h1>
+
+            <div class="flex flex-col gap-12 w-full max-w-7xl">
+                {
+                    categories?.map(
+                        (category) =>
+                            category.products &&
+                            category.products.length > 0 && (
+                                <div class="flex flex-col gap-6">
+                                    <h2 class="text-4xl text-white/90 font-semibold border-b border-white/20 pb-2">
+                                        {category.name}
+                                    </h2>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        {category.products.map((product) => {
+                                            const primaryImage =
+                                                product.product_images?.find(
+                                                    (img) => img.is_primary,
+                                                ) ||
+                                                product.product_images?.[0];
+                                            return (
+                                                <a
+                                                    href={`/tienda/${product.slug}`}
+                                                    class="group block"
+                                                >
+                                                    <div class="bg-zinc-900 rounded-lg overflow-hidden transition-transform group-hover:scale-[1.02] border border-zinc-800">
+                                                        <div class="aspect-square w-full overflow-hidden bg-zinc-800 relative">
+                                                            {primaryImage ? (
+                                                                <img
+                                                                    src={
+                                                                        primaryImage.image_url
+                                                                    }
+                                                                    alt={
+                                                                        primaryImage.alt_text ||
+                                                                        product.title
+                                                                    }
+                                                                    class="w-full h-full object-cover object-center group-hover:opacity-90 transition-opacity"
+                                                                />
+                                                            ) : (
+                                                                <div class="w-full h-full flex items-center justify-center text-zinc-600">
+                                                                    No Image
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                        <div class="p-4">
+                                                            <h3 class="text-xl text-white font-medium group-hover:text-red-500 transition-colors">
+                                                                {product.title}
+                                                            </h3>
+                                                            <p class="mt-2 text-zinc-400 font-semibold">
+                                                                $
+                                                                {Number(
+                                                                    product.base_price,
+                                                                ).toFixed(2)}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            ),
+                    )
+                }
+            </div>
         </main>
 
         <Footer />
