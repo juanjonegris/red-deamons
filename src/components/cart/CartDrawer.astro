@@ -1,0 +1,116 @@
+---
+import CartIcon from './CartIcon.astro';
+import CartItem from './CartItem.astro';
+import CartSummary from './CartSummary.astro';
+import type { CartWithItems } from '../../lib/types';
+import { formatPrice } from '../../lib/cart';
+
+interface Props {
+    cart: CartWithItems | null;
+    isOpen: boolean;
+    itemCount: number;
+}
+
+const { cart, isOpen, itemCount } = Astro.props;
+
+const subtotal = cart?.cart_items?.reduce((total, item) => {
+    const price = item.product_variant.price || item.product_variant.product.base_price;
+    return total + (price * item.quantity);
+}, 0) || 0;
+---
+
+<!-- Cart Drawer -->
+<div
+    id="cart-drawer"
+    class={`fixed top-0 right-0 h-full w-96 bg-zinc-900 border-l border-zinc-800 transform transition-transform duration-300 z-50 ${
+        isOpen ? 'translate-x-0' : 'translate-x-full'
+    }`}
+>
+    <!-- Drawer Header -->
+    <div class="flex items-center justify-between p-4 border-b border-zinc-800">
+        <h2 class="text-xl font-bold text-white">Mi Carrito</h2>
+        <button
+            onclick="toggleCartDrawer()"
+            class="text-zinc-400 hover:text-white transition-colors"
+            aria-label="Cerrar carrito"
+        >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Cart Content -->
+    <div class="flex flex-col h-full">
+        {cart && cart.cart_items.length > 0 ? (
+            <>
+                <!-- Cart Items -->
+                <div class="flex-grow overflow-y-auto">
+                    {cart.cart_items.map((item) => (
+                        <CartItem
+                            item={item}
+                            onUpdateQuantity={(productVariantId, quantity) => {
+                                // This will be handled by the parent component
+                            }}
+                            onRemove={(productVariantId) => {
+                                // This will be handled by the parent component
+                            }}
+                        />
+                    ))}
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="p-4 border-t border-zinc-800">
+                    <CartSummary subtotal={subtotal} />
+                </div>
+            </>
+        ) : (
+            <!-- Empty Cart -->
+            <div class="flex-grow flex flex-col items-center justify-center p-8">
+                <svg
+                    class="w-16 h-16 text-zinc-600 mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                    ></path>
+                </svg>
+                <p class="text-zinc-400 text-center mb-4">Tu carrito está vacío</p>
+                <a
+                    href="/tienda"
+                    class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                >
+                    Ir a la Tienda
+                </a>
+            </div>
+        )}
+    </div>
+</div>
+
+<!-- Overlay -->
+<div
+    id="cart-overlay"
+    class={`fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300 ${
+        isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+    }`}
+    onclick="toggleCartDrawer()"
+></div>
+
+<script>
+    function toggleCartDrawer() {
+        const drawer = document.getElementById('cart-drawer');
+        const overlay = document.getElementById('cart-overlay');
+        
+        drawer.classList.toggle('translate-x-0');
+        drawer.classList.toggle('translate-x-full');
+        overlay.classList.toggle('opacity-100');
+        overlay.classList.toggle('opacity-0');
+        overlay.classList.toggle('pointer-events-auto');
+        overlay.classList.toggle('pointer-events-none');
+    }
+</script>

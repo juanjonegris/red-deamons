@@ -4,6 +4,7 @@ import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
 import { supabase } from "../../lib/supabase";
 import type { Product, ProductVariant, ProductImage } from "../../lib/types";
+import { addToLocalCart, validateStock } from "../../lib/cart";
 
 export async function getStaticPaths() {
     const { data: products } = await supabase
@@ -51,6 +52,9 @@ const isOutOfStock = totalStock === 0;
 
 // Get unique attributes for variant selection (simplified for now to just show list if exists)
 // A more complex implementation would require valid combination logic.
+
+// State for selected variant
+let selectedVariantId: number | null = variants.length > 0 ? variants[0].id : null;
 ---
 
 <Layout title={`Red Demons | ${product.title}`}>
@@ -140,10 +144,13 @@ const isOutOfStock = totalStock === 0;
                                             disabled={
                                                 variant.stock_quantity === 0
                                             }
+                                            onclick={`selectVariant(${variant.id})`}
                                             class={`px-4 py-2 rounded border text-sm font-medium transition-colors relative
                                             ${
                                                 variant.stock_quantity === 0
                                                     ? "border-zinc-800 text-zinc-600 bg-zinc-900 cursor-not-allowed decoration-line-through"
+                                                    : selectedVariantId === variant.id
+                                                    ? "border-red-500 bg-red-500/20 text-white"
                                                     : "border-zinc-700 hover:border-red-500 bg-zinc-900/50 text-white"
                                             }
                                         `}
@@ -168,19 +175,27 @@ const isOutOfStock = totalStock === 0;
                         )
                     }
 
-                    {/* Add to Cart Button (Placeholder) */}
+                    {/* Add to Cart Button */}
                     <button
-                        disabled={isOutOfStock}
+                        disabled={isOutOfStock || !selectedVariantId}
+                        onclick="addToCart()"
                         class={`mt-8 w-full py-4 px-6 rounded-lg font-bold uppercase tracking-widest transition-all
                             ${
-                                isOutOfStock
+                                isOutOfStock || !selectedVariantId
                                     ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
                                     : "bg-red-600 hover:bg-red-700 text-white hover:shadow-[0_0_20px_rgba(220,38,38,0.5)]"
                             }
                         `}
                     >
-                        {isOutOfStock ? "Sin Stock" : "Agregar al Carrito"}
+                        {isOutOfStock ? "Sin Stock" : !selectedVariantId ? "Selecciona una variante" : "Agregar al Carrito"}
                     </button>
+
+                    {/* Success Message */}
+                    <div id="success-message" class="hidden mt-4 p-4 bg-green-900/50 border border-green-600 rounded-lg">
+                        <p class="text-green-400 text-center font-medium">
+                            ¡Producto agregado al carrito exitosamente!
+                        </p>
+                    </div>
                 </div>
             </div>
         </main>
@@ -188,3 +203,121 @@ const isOutOfStock = totalStock === 0;
         <Footer />
     </div>
 </Layout>
+
+<script>
+    let selectedVariantId = null;
+
+    // Client-side cart functions
+    function getLocalCart() {
+        try {
+            const cartData = localStorage.getItem('red-demons-cart');
+            if (!cartData) {
+                return {
+                    items: [],
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+            }
+            return JSON.parse(cartData);
+        } catch (error) {
+            return {
+                items: [],
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
+        }
+    }
+
+    function saveLocalCart(cart) {
+        try {
+            cart.updated_at = new Date().toISOString();
+            localStorage.setItem('red-demons-cart', JSON.stringify(cart));
+        } catch (error) {
+            console.error('Error saving local cart:', error);
+        }
+    }
+
+    function addToLocalCart(productVariantId, quantity = 1) {
+        const cart = getLocalCart();
+        const existingItem = cart.items.find(item => item.product_variant_id === productVariantId);
+        
+        if (existingItem) {
+            existingItem.quantity += quantity;
+        } else {
+            cart.items.push({
+                id: Math.random().toString(36).substring(2) + Date.now().toString(36),
+                product_variant_id: productVariantId,
+                quantity,
+                added_at: new Date().toISOString()
+            });
+        }
+        
+        saveLocalCart(cart);
+        return cart;
+    }
+
+    function selectVariant(variantId) {
+        selectedVariantId = variantId;
+        
+        // Update button styles
+        document.querySelectorAll('[onclick^="selectVariant"]').forEach(btn => {
+            btn.classList.remove('border-red-500', 'bg-red-500/20');
+            btn.classList.add('border-zinc-700', 'bg-zinc-900/50');
+        });
+        
+        const selectedBtn = document.querySelector(`[onclick="selectVariant(${variantId})"]`);
+        if (selectedBtn) {
+            selectedBtn.classList.remove('border-zinc-700', 'bg-zinc-900/50');
+            selectedBtn.classList.add('border-red-500', 'bg-red-500/20');
+        }
+    }
+
+    async function addToCart() {
+        if (!selectedVariantId) {
+            alert('Por favor selecciona una variante');
+            return;
+        }
+
+        try {
+            // Add to local cart directly (client-side)
+            const cart = addToLocalCart(selectedVariantId, 1);
+            
+            // Update cart count and show success message
+            updateCartCount();
+            
+            console.log('Item added to cart:', cart);
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            alert('Error al agregar al carrito');
+        }
+    }
+
+    function updateCartCount() {
+        // Dispatch custom event to update cart count in header
+        window.dispatchEvent(new CustomEvent('cartUpdated'));
+        
+        // Also update the success message
+        const successMsg = document.getElementById('success-message');
+        if (successMsg) {
+            successMsg.classList.remove('hidden');
+            
+            // Hide success message after 3 seconds
+            setTimeout(() => {
+                successMsg.classList.add('hidden');
+            }, 3000);
+        }
+    }
+
+    // Make functions globally available
+    window.selectVariant = selectVariant;
+    window.addToCart = addToCart;
+
+    // Initialize first variant as selected
+    document.addEventListener('DOMContentLoaded', () => {
+        const firstVariant = document.querySelector('[onclick^="selectVariant"]');
+        if (firstVariant) {
+            const variantId = firstVariant.getAttribute('onclick').match(/\d+/)[0];
+            selectVariant(parseInt(variantId));
+        }
+    });
+</script>

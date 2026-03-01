@@ -1,5 +1,5 @@
 ---
-
+import CartIcon from "./cart/CartIcon.astro";
 ---
 
 <header
@@ -91,6 +91,15 @@
             </a>
         </nav>
 
+        <!-- Cart Icon -->
+        <div class="flex items-center space-x-4">
+            <a href="/carrito" class="block">
+                <div id="cart-icon-container">
+                    <!-- Cart icon will be rendered client-side -->
+                </div>
+            </a>
+        </div>
+
         <!-- Mobile Menu Button -->
         <button
             id="mobile-menu-btn"
@@ -153,9 +162,95 @@
                 class="text-white hover:text-red-500 font-bold uppercase block tracking-wide"
                 >MÁS</a
             >
+            
+            <!-- Mobile Cart Link -->
+            <div class="pt-4 border-t border-zinc-800">
+                <a
+                    href="/carrito"
+                    class="flex items-center space-x-2 text-white hover:text-red-500 font-bold uppercase block tracking-wide"
+                >
+                    <svg
+                        class="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                        ></path>
+                    </svg>
+                    <span>Carrito (<span id="mobile-cart-count">0</span>)</span>
+                </a>
+            </div>
         </nav>
     </div>
 </header>
+
+<script>
+    function getLocalCartItemCount() {
+        try {
+            const cartData = localStorage.getItem('red-demons-cart');
+            if (!cartData) return 0;
+            const cart = JSON.parse(cartData);
+            return cart.items.reduce((total, item) => total + item.quantity, 0);
+        } catch (error) {
+            return 0;
+        }
+    }
+
+    function renderCartIcon() {
+        const itemCount = getLocalCartItemCount();
+        const container = document.getElementById('cart-icon-container');
+        const mobileCount = document.getElementById('mobile-cart-count');
+        
+        if (container) {
+            container.innerHTML = `
+                <button
+                    class="relative p-2 text-white hover:text-red-500 transition-colors"
+                    aria-label="Carrito de compras"
+                >
+                    <svg
+                        class="w-6 h-6"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                        ></path>
+                    </svg>
+                    
+                    ${itemCount > 0 ? `
+                        <span
+                            class="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
+                        >
+                            ${itemCount > 99 ? '99+' : itemCount}
+                        </span>
+                    ` : ''}
+                </button>
+            `;
+        }
+        
+        if (mobileCount) {
+            mobileCount.textContent = itemCount;
+        }
+    }
+
+    // Initial render
+    document.addEventListener('DOMContentLoaded', renderCartIcon);
+    
+    // Update cart count when storage changes
+    window.addEventListener('storage', renderCartIcon);
+    
+    // Custom event for cart updates
+    window.addEventListener('cartUpdated', renderCartIcon);
+</script>
 
 <script>
     const btn = document.getElementById("mobile-menu-btn");
